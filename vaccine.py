@@ -1,15 +1,17 @@
 from luma.core.render import canvas
 from PIL import Image, ImageDraw
+from PIL.ImageFont import truetype
 from luma.oled.device import ssd1322
 from luma.core.interface.serial import spi
 from requests import get
-from pprint import pprint
 from datetime import datetime
 from math import floor
 from time import sleep
+from os import path
 data = {}
 time_font = path.dirname(path.realpath(__file__)) + '/time.ttf'
-
+text_font = path.dirname(path.realpath(__file__)) + '/time.ttf'
+size = 45
 
 def get_data():
     global cum_vaccinated
@@ -23,24 +25,24 @@ def get_data():
         daily_vaccines = latest_data['newPeopleVaccinatedFirstDoseByPublishDate'] + latest_data['newPeopleVaccinatedSecondDoseByPublishDate']
         time_of_update = datetime.now().strftime("%H:%M:%S")
         data = latest_data
-
+        print ('data updated')
+    else:
+        print ('data not updated')
 
 def predictor(cum_vaccinated, daily_vaccines):
     time = datetime.now().strftime("%H:%M:%S")
     time_diff = ((60*60*int(time[0:2])) + (60*int(time[3:5])) + (int(time[6:8]))) - ((60*60*int(time_of_update[0:2])) + (60*int(time_of_update[3:5])) + (int(time_of_update[6:8])))
-    ratio = time_diff / 86400
-    return (floor(cum_vaccinated + ratio * daily_vaccines))
-
+    ratio = time_diff / 8640
+    num = floor(cum_vaccinated + ratio * daily_vaccines)
+    return (f"{num:,}")
 
 def display():
     im = Image.new('RGB', (256, 64))
-    draw =ImageDraw.Draw(im)
-    draw.text((0, 0), str(predictor(cum_vaccinated, daily_vaccines)), fill = 'yellow', font = time_font)
+    draw = ImageDraw.Draw(im)
+    draw.text((0, 0), predictor(cum_vaccinated, daily_vaccines), fill = 'yellow', font = truetype(time_font, size))
+    draw.text((0, 48), 'Vaccine doses administered for COVID-19 in the UK', fill = 'yellow', font = truetype(text_font, 12))
     with canvas(device, background = im) as draw:
         pass
-    
-    
-    
 
 get_data()
 serial = spi(port=0, device=0)
@@ -48,11 +50,8 @@ device = ssd1322(serial, rotate = 2)
 
 
 while True:
-    display()
     sleep(1)
-    if datetime.now().strftime("%M") == '28':
+    display()
+    if datetime.now().strftime("%M") == '00':
         get_data()
-        print('updating')
         sleep(60)
-        print('finished updating')
-

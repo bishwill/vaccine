@@ -25,9 +25,6 @@ def get_data():
         daily_vaccines = latest_data['newPeopleVaccinatedFirstDoseByPublishDate'] + latest_data['newPeopleVaccinatedSecondDoseByPublishDate']
         time_of_update = datetime.now().strftime("%H:%M:%S")
         data = latest_data
-        print ('data updated')
-    else:
-        print ('data not updated')
 
 def predictor(cum_vaccinated, daily_vaccines):
     time = datetime.now().strftime("%H:%M:%S")

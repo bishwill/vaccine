@@ -29,7 +29,7 @@ def get_data():
 def predictor(cum_vaccinated, daily_vaccines):
     time = datetime.now().strftime("%H:%M:%S")
     time_diff = ((60*60*int(time[0:2])) + (60*int(time[3:5])) + (int(time[6:8]))) - ((60*60*int(time_of_update[0:2])) + (60*int(time_of_update[3:5])) + (int(time_of_update[6:8])))
-    ratio = time_diff / 8640
+    ratio = time_diff / 86400
     num = floor(cum_vaccinated + ratio * daily_vaccines)
     return (f"{num:,}")
 

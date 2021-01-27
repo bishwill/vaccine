@@ -37,7 +37,7 @@ def display():
     im = Image.new('RGB', (256, 64))
     draw = ImageDraw.Draw(im)
     draw.text((0, 0), predictor(cum_vaccinated, daily_vaccines), fill = 'yellow', font = truetype(time_font, size))
-    draw.text((0, 48), 'Vaccine doses administered for COVID-19', fill = 'yellow', font = truetype(text_font, 11))
+    draw.text((12, 48), 'Vaccine doses administered for COVID-19', fill = 'yellow', font = truetype(text_font, 11))
     with canvas(device, background = im) as draw:
         pass
 

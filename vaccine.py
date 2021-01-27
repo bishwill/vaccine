@@ -10,7 +10,7 @@ from time import sleep
 from os import path
 data = {}
 time_font = path.dirname(path.realpath(__file__)) + '/time.ttf'
-text_font = path.dirname(path.realpath(__file__)) + '/time.ttf'
+text_font = path.dirname(path.realpath(__file__)) + '/text.ttf'
 size = 45
 
 def get_data():
@@ -37,7 +37,7 @@ def display():
     im = Image.new('RGB', (256, 64))
     draw = ImageDraw.Draw(im)
     draw.text((0, 0), predictor(cum_vaccinated, daily_vaccines), fill = 'yellow', font = truetype(time_font, size))
-    draw.text((0, 48), 'Vaccine doses administered for COVID-19 in the UK', fill = 'yellow', font = truetype(text_font, 12))
+    draw.text((0, 48), 'Vaccine doses administered for COVID-19', fill = 'yellow', font = truetype(text_font, 12))
     with canvas(device, background = im) as draw:
         pass
 

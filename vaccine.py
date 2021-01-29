@@ -4,7 +4,7 @@ from PIL.ImageFont import truetype
 from luma.oled.device import ssd1322
 from luma.core.interface.serial import spi
 from requests import get
-from datetime import datetime
+from datetime import datetime, date
 from math import floor
 from time import sleep
 from os import path
@@ -17,18 +17,26 @@ def get_data():
     global cum_vaccinated
     global daily_vaccines
     global data
+    global time_of_update
     r = get('https://coronavirus.data.gov.uk/api/v1/data?filters=areaType=overview&structure=%7B%22areaType%22:%22areaType%22,%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22date%22:%22date%22,%22newPeopleVaccinatedFirstDoseByPublishDate%22:%22newPeopleVaccinatedFirstDoseByPublishDate%22,%22newPeopleVaccinatedSecondDoseByPublishDate%22:%22newPeopleVaccinatedSecondDoseByPublishDate%22,%22cumPeopleVaccinatedFirstDoseByPublishDate%22:%22cumPeopleVaccinatedFirstDoseByPublishDate%22,%22cumPeopleVaccinatedSecondDoseByPublishDate%22:%22cumPeopleVaccinatedSecondDoseByPublishDate%22%7D&format=json')
     latest_data = r.json()['data'][0]
     if latest_data != data:
         cum_vaccinated = latest_data['cumPeopleVaccinatedFirstDoseByPublishDate'] + latest_data['cumPeopleVaccinatedSecondDoseByPublishDate']
         daily_vaccines = latest_data['newPeopleVaccinatedFirstDoseByPublishDate'] + latest_data['newPeopleVaccinatedSecondDoseByPublishDate']
+        time_of_update = datetime.now().strftime("%H:%M:%S")
+        date_of_update = latest_data['date'][-2:]
         data = latest_data
 
 def predictor(cum_vaccinated, daily_vaccines):
     time = datetime.now().strftime("%H:%M:%S")
-    time_diff = ((60*60*int(time[0:2])) + (60*int(time[3:5])) + (int(time[6:8]))) + 86400
+    date = str(date.today())[-2:]
+    time_diff = ((60*60*int(time[0:2])) + (60*int(time[3:5])) + (int(time[6:8])))
+    if date == date_of_update:
+        date_diff = 0
+    else:
+        date_diff = 1
     ratio = time_diff / 86400
-    num = floor(cum_vaccinated + (ratio * daily_vaccines))
+    num = floor(cum_vaccinated + (daily_vaccines * (date_diff + ratio)))
     return (f"{num:,}")
 
 def display():
@@ -47,6 +55,9 @@ device = ssd1322(serial, rotate = 2)
 while True:
     sleep(1)
     display()
+
+
+    
     if datetime.now().strftime("%M") == '00':
         get_data()
         sleep(60)
